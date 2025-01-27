@@ -2,6 +2,7 @@ import { User, Application } from '../models/index.js';
 import { Request, Response } from 'express';
 
 
+
   // Get all users
   export const getUsers = async (_req: Request, res: Response) => {
     try {

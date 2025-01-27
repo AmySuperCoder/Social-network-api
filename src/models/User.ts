@@ -1,29 +1,37 @@
 import { Schema, model, Document, ObjectId } from 'mongoose';
 
 interface IUser extends Document {
-  first: string;
-  last: string;
-  age: number;
-  applications: ObjectId[];
-  fullName: string;
+  username: string;
+  email: string;
+  thoughts: string[];
+  friends: ObjectId[];
 }
 
 // Schema to create User model
 const userSchema = new Schema<IUser>(
   {
-    first: String,
-    last: String,
-    age: Number,
-    applications: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Application',
-      },
-    ],
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      match: /.+\@.+\..+/,
+    },
+    thoughts: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Thought'
+  }],
+  friends: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+  }]
   },
   {
-    // Mongoose supports two Schema options to transform Objects after querying MongoDb: toJSON and toObject.
-    // Here we are indicating that we want virtuals to be included with our response, overriding the default behavior
     toJSON: {
       virtuals: true,
     },
@@ -31,21 +39,20 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Create a virtual property `fullName` that gets and sets the user's full name
-userSchema
-  .virtual('fullName')
-  // Getter
-  .get(function () {
-    return `${this.first} ${this.last}`;
-  })
-  // Setter to set the first and last name
-  .set(function (v) {
-    const first = v.split(' ')[0];
-    const last = v.split(' ')[1];
-    this.set({ first, last });
-  });
 
-// Initialize our User model
+userSchema.virtual('friendCount').get(function() {
+  return this.friends.length;
+});
+
+userSchema.set('toJSON', {
+  virtuals: true
+});
+userSchema.set('toObject', {
+  virtuals: true
+});
+
+
+
 const User = model('user', userSchema);
 
 export default User;

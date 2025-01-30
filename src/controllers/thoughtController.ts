@@ -1,4 +1,4 @@
-import { Thought, Application } from '../models/index.js';
+import { Thought, User } from '../models/index.js';
 import { Request, Response } from 'express';
 
 export const getThoughts = async (_req: Request, res: Response) => {
@@ -56,3 +56,43 @@ export const deleteThought = async (req: Request, res: Response) => {
     return; 
     }
 }   
+
+export const addReaction = async (req: Request, res: Response) => {
+  try {
+    const thought = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $addToSet: { reactions: req.body } },
+      { new: true }
+    );
+
+    if (!thought) {
+      return res.status(404).json({ message: 'No thought with that ID' });
+    }
+
+    res.json(thought);
+    return;
+  } catch (err) {
+    res.status(500).json(err);
+    return;
+  }
+}
+
+export const removeReaction = async (req: Request, res: Response) => {  
+  try {
+    const thought = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { new: true }
+    );
+
+    if (!thought) {
+      return res.status(404).json({ message: 'No thought with that ID' });
+    }
+
+    res.json(thought);
+    return;
+  } catch (err) {
+    res.status(500).json(err);
+    return;
+  }
+}

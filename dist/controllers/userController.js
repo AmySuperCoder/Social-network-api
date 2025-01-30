@@ -1,4 +1,4 @@
-import { User, Application } from '../models/index.js';
+import { User, Thought } from '../models/index.js';
 // Get all users
 export const getUsers = async (_req, res) => {
     try {
@@ -42,12 +42,21 @@ export const deleteUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'No user with that ID' });
         }
-        await Application.deleteMany({ _id: { $in: user.applications } });
-        res.json({ message: 'User and associated apps deleted!' });
+        await Thought.deleteMany({ _id: { $in: user.thoughts } });
+        res.json({ message: 'User and associated thoughts deleted!' });
         return;
     }
     catch (err) {
         res.status(500).json(err);
         return;
+    }
+};
+export const updateUser = async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate({ _id: req.params.userId }, { $set: req.body }, { new: true });
+        res.json(user);
+    }
+    catch (err) {
+        res.status(500).json(err);
     }
 };

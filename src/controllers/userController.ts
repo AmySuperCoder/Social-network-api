@@ -1,4 +1,4 @@
-import { User, Application } from '../models/index.js';
+import { User, Thought } from '../models/index.js';
 import { Request, Response } from 'express';
 
 
@@ -50,8 +50,8 @@ import { Request, Response } from 'express';
         return res.status(404).json({ message: 'No user with that ID' });
       }
 
-      await Application.deleteMany({ _id: { $in: user.applications } });
-      res.json({ message: 'User and associated apps deleted!' })
+      await Thought.deleteMany({ _id: { $in: user.thoughts } });
+      res.json({ message: 'User and associated thoughts deleted!' })
       return;
     } catch (err) {
       res.status(500).json(err);
@@ -59,3 +59,41 @@ import { Request, Response } from 'express';
     }
   }
 
+  export const updateUser = async (req: Request, res: Response) => {
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $set: req.body }, 
+        { new: true }
+      ); 
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }   
+  }
+
+export const addFriend = async (req: Request, res: Response) => { 
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.params.friendId } },
+      { new: true }
+    );
+    res.json(user);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export const deleteFriend = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { friends: req.params.friendId } },
+      { new: true }
+    );
+    res.json(user);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}

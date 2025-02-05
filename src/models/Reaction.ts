@@ -29,7 +29,7 @@ const reactionSchema: Schema<IReaction> = new Mongoose.Schema({
     },
 });
   
-  // Create a model from the schema (optional, depending on your use case)
+  
   
   
   export default reactionSchema;

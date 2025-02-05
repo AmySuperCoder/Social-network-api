@@ -30,10 +30,15 @@ export const getSingleThought = async (req: Request, res: Response) => {
 export const createThought = async (req: Request, res: Response) => {
   try {
     const thought = await Thought.create(req.body);
+    const user = await User.findOneAndUpdate(
+      { _id: req.body.userId },
+      { $addToSet: { thoughts: thought._id } }  
+    );
     res.json(thought);
   } catch (err) {
     res.status(500).json(err);
-  }
+  return;
+  } 
 }
 
 export const deleteThought = async (req: Request, res: Response) => {
@@ -95,4 +100,17 @@ export const removeReaction = async (req: Request, res: Response) => {
     res.status(500).json(err);
     return;
   }
+}
+
+export const updateThought = async (req: Request, res: Response) => {
+  try {
+    const user = await Thought.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $set: req.body }, 
+      { new: true }
+    ); 
+    res.json(user);
+  } catch (err) {
+    res.status(500).json(err);
+  }   
 }
